@@ -41,7 +41,7 @@ AUTO_DELETE = int(environ.get("AUTO_DELETE", "30")) # Time in Minutes
 AUTO_DELETE_TIME = int(environ.get("AUTO_DELETE_TIME", "1800")) # Time in Seconds
 
 # Channel Information
-LOG_CHANNEL = int(environ.get("LOG_CHANNEL", ""))
+LOG_CHANNEL = int(environ.get("LOG_CHANNEL", "-1003772799863"))
 
 # Auth Channel Information
 AUTH_CHANNEL = environ.get("AUTH_CHANNEL", "Hari_Moviez")  # Channel username or ID (without @ for username)
