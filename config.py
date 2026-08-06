@@ -13,13 +13,13 @@ def is_enabled(value, default):
         return default
       
 # Bot Information
-API_ID = int(environ.get("API_ID", ""))
-API_HASH = environ.get("API_HASH", "")
-BOT_TOKEN = environ.get("BOT_TOKEN", "")
+API_ID = int(environ.get("API_ID", "15671595"))
+API_HASH = environ.get("API_HASH", "bb8f36f9c39a24c7f8b2acbc7ea8c60a")
+BOT_TOKEN = environ.get("BOT_TOKEN", "8815742606:AAGq0MnzgpuxAusEOhCTscv6BmxGfBwpNU4")
 
 PICS = (environ.get('PICS', 'https://graph.org/file/ce1723991756e48c35aa1.jpg')).split() # Bot Start Picture
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '6887303054 7253187871').split()]
-BOT_USERNAME = environ.get("BOT_USERNAME", "") # without @
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '8363515444 7253187871').split()]
+BOT_USERNAME = environ.get("BOT_USERNAME", "Hk_Moviezbot") # without @
 PORT = environ.get("PORT", "8080")
 
 # Clone Info :-
@@ -44,9 +44,9 @@ AUTO_DELETE_TIME = int(environ.get("AUTO_DELETE_TIME", "1800")) # Time in Second
 LOG_CHANNEL = int(environ.get("LOG_CHANNEL", ""))
 
 # Auth Channel Information
-AUTH_CHANNEL = environ.get("AUTH_CHANNEL", "")  # Channel username or ID (without @ for username)
+AUTH_CHANNEL = environ.get("AUTH_CHANNEL", "Hari_Moviez")  # Channel username or ID (without @ for username)
 AUTH_CHANNEL_MODE = is_enabled(environ.get('AUTH_CHANNEL_MODE', "True"), True)  # Set True to enable force subscribe
-VERIFY_CHANNEL_LINK = environ.get("VERIFY_CHANNEL_LINK", "")  # Channel invite link (optional)
+VERIFY_CHANNEL_LINK = environ.get("VERIFY_CHANNEL_LINK", "Hari_Moviez")  # Channel invite link (optional)
 
 # File Caption Information
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", "")
@@ -67,7 +67,7 @@ VERIFY_TUTORIAL = environ.get("VERIFY_TUTORIAL", "") # how to open link
 WEBSITE_URL_MODE = bool(environ.get('WEBSITE_URL_MODE', True)) # Set True or False
 
 # If Website Url Mode Is True Then Fill All Required Variable, If False Then Don't Fill.
-WEBSITE_URL = environ.get("WEBSITE_URL", "") # For More Information Check Video On Yt - @Tech_VJ
+WEBSITE_URL = environ.get("WEBSITE_URL", "streampage-liard.vercel.app") # For More Information Check Video On Yt - @Tech_VJ
 
 # File Stream Config
 STREAM_MODE = bool(environ.get('STREAM_MODE', True)) # Set True or False
