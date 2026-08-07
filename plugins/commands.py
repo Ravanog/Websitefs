@@ -180,14 +180,14 @@ async def start(client, message):
             await asyncio.sleep(1)
         await sts.delete()
         if AUTO_DELETE_MODE:
-            k = await client.send_message(chat_id=message.from_user.id, text=f"<b><u>IMPORTANT</u></b>\n\nThis Movie File/Video will be deleted in <b><u>{AUTO_DELETE} minutes</u> (Due to Copyright Issues).\n\nPlease forward this File/Video to your Saved Messages and Start Download there</b>")
+            k = await client.send_message(chat_id=message.from_user.id, text=f"<b><u>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
             await asyncio.sleep(AUTO_DELETE_TIME)
             for x in filesarr:
                 try:
                     await x.delete()
                 except:
                     pass
-            await k.edit_text("<b>Your All Files/Videos is successfully deleted!!!</b>")
+            await k.edit_text("<b>ғɪʟᴇꜱ ʜᴀᴠᴇ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ 🗑️</b>")
         return
 
     pre, decode_file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
@@ -233,13 +233,13 @@ async def start(client, message):
             del_msg = await msg.copy(chat_id=message.from_user.id, protect_content=False)
         
         if AUTO_DELETE_MODE:
-            k = await client.send_message(chat_id=message.from_user.id, text=f"<b><u>IMPORTANT</u></b>\n\nThis Movie File/Video will be deleted in <b><u>{AUTO_DELETE} minutes</u> (Due to Copyright Issues).\n\nPlease forward this File/Video to your Saved Messages and Start Download there</b>")
+            k = await client.send_message(chat_id=message.from_user.id, text=f"<b>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
             await asyncio.sleep(AUTO_DELETE_TIME)
             try:
                 await del_msg.delete()
             except:
                 pass
-            await k.edit_text("<b>Your File/Video is successfully deleted!!!</b>")
+            await k.edit_text("<b>ғɪʟᴇꜱ ʜᴀᴠᴇ ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ 🗑️</b>")
         return
     except:
         pass
