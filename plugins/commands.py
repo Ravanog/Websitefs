@@ -180,7 +180,7 @@ async def start(client, message):
             await asyncio.sleep(1)
         await sts.delete()
         if AUTO_DELETE_MODE:
-            k = await client.send_message(chat_id=message.from_user.id, text=f"<b><u>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
+            k = await client.send_message(chat_id=message.from_user.id, text=f"<b><u>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬 \n\n 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 \n ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
             await asyncio.sleep(AUTO_DELETE_TIME)
             for x in filesarr:
                 try:
@@ -233,7 +233,7 @@ async def start(client, message):
             del_msg = await msg.copy(chat_id=message.from_user.id, protect_content=False)
         
         if AUTO_DELETE_MODE:
-            k = await client.send_message(chat_id=message.from_user.id, text=f"<b>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
+            k = await client.send_message(chat_id=message.from_user.id, text=f"<b>⚠️ ᴛʜɪꜱ ᴍᴏᴠɪᴇ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴅᴇʟᴇᴛᴇᴅ ɪɴ {AUTO_DELETE} ᴍɪɴᴜᴛᴇꜱ. ⏳ (ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ ɪɴᴛᴇɢʀᴀᴛɪᴏɴ) 🚫🎬  \n\n 📥 ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴏʀ ғᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ ʏᴏᴜʀ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇꜱ 💬 \n ʙᴇғᴏʀᴇ ɪᴛ ɢᴇᴛꜱ ᴅᴇʟᴇᴛᴇᴅ. 💾</b>")
             await asyncio.sleep(AUTO_DELETE_TIME)
             try:
                 await del_msg.delete()
