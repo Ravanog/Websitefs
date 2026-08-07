@@ -47,8 +47,8 @@ async def start(client, message):
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT.format(message.from_user.id, message.from_user.mention))
     if len(message.command) != 2:
         buttons = [[
-            InlineKeyboardButton('Visit Website', url='https://t.me/'),
-            InlineKeyboardButton('Join', url='https://t.me/Cinemaniacs_Hub')
+            InlineKeyboardButton('ᴠɪꜱɪᴛ ᴡᴇʙꜱɪᴛᴇ', url='https://hkmoviez.netlify.app'),
+            InlineKeyboardButton('ʙᴀᴄᴋᴜᴘ', url='https://t.me/Hari_Moviez')
         ]]
         if CLONE_MODE:
             buttons.append([InlineKeyboardButton('Create Your Own Clone Bot', callback_data='clone')])
