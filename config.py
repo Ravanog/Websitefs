@@ -22,6 +22,9 @@ ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ
 BOT_USERNAME = environ.get("BOT_USERNAME", "Hk_Moviezbot") # without @
 PORT = environ.get("PORT", "8080")
 
+# Add this to your config.py
+VERCEL_URL = "https://streampage-liard.vercel.app" 
+
 # Clone Info :-
 CLONE_MODE = bool(environ.get('CLONE_MODE', False)) # Set True or False
 
