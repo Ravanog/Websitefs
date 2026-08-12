@@ -103,6 +103,21 @@
             transition: color 0.2s;
         }
 
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 230, 118, .1);
+            border: 1px solid rgba(0, 230, 118, .35);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: .7rem;
+            font-weight: 800;
+            color: var(--green);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+       }
+
         .nav a:hover {
             color: var(--accent-rose);
         }
@@ -907,6 +922,8 @@
 
             <div class="info-card">
                 <h1 class="file-title">{{file_name}}</h1>
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+            </div>
 
                 <div class="actions">
                     <!-- VLC and MX Players side by side -->
