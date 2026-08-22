@@ -106,6 +106,12 @@ async def watch_handler(request: web.Request):
         raise web.HTTPInternalServerError(text=str(e))
 
 
+@routes.get("/favicon.ico")
+async def favicon(_):
+    """Ignore favicon requests to prevent unnecessary bot errors."""
+    raise web.HTTPNotFound()
+
+
 @routes.get(r"/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
     """Main media stream router."""
