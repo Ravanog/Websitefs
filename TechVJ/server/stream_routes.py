@@ -21,17 +21,14 @@ from ..utils.custom_dl import ByteStreamer
 from TechVJ.utils.render_template import render_page
 from config import MULTI_CLIENT
 
-# Initialize Route Table
 routes = web.RouteTableDef()
 
-# File paths and caching configurations
 VOTES_FILE = 'votes.json'
 REPORTS_FILE = 'reports.json'
 AUDIO_CACHE_DIR = 'audio_cache'
 AUDIO_CACHE = {}
 AUDIO_CACHE_LOCK = asyncio.Lock()
 
-# Ensure necessary directories and storage files exist
 os.makedirs(AUDIO_CACHE_DIR, exist_ok=True)
 
 if not os.path.exists(VOTES_FILE):
@@ -42,7 +39,6 @@ if not os.path.exists(REPORTS_FILE):
     with open(REPORTS_FILE, 'w') as f:
         json.dump([], f)
 
-# Language code mapping dictionary
 LANG_MAP = {
     'hin': 'Hindi', 'tam': 'Tamil', 'tel': 'Telugu',
     'mal': 'Malayalam', 'kan': 'Kannada', 'eng': 'English',
@@ -55,46 +51,36 @@ LANG_MAP = {
 
 class_cache = {}
 
-
-def parse_file_path(path: str, query_hash: str = None):
-    """Helper utility to extract secure hash and file ID from request path."""
-    match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", path)
-    if match:
-        return match.group(1), int(match.group(2))
-    
-    file_id_match = re.search(r"(\d+)(?:\/\S+)?", path)
-    if not file_id_match:
-        file_id_match = re.search(r"(\d+)", path)
-    
-    file_id = int(file_id_match.group(1)) if file_id_match else 0
-    return query_hash, file_id
-
-
 @routes.get("/", allow_head=True)
 async def root_route_handler(_):
-    """Server status endpoint."""
-    return web.json_response({
-        "server_status": "running",
-        "uptime": get_readable_time(time.time() - StartTime),
-        "telegram_bot": "@" + StreamBot.username,
-        "connected_bots": len(multi_clients),
-        "loads": dict(
-            ("bot" + str(c + 1), l)
-            for c, (_, l) in enumerate(
-                sorted(work_loads.items(), key=lambda x: x[1], reverse=True)
-            )
-        ),
-        "version": __version__,
-    })
-
+    return web.json_response(
+        {
+            "server_status": "running",
+            "uptime": get_readable_time(time.time() - StartTime),
+            "telegram_bot": "@" + StreamBot.username,
+            "connected_bots": len(multi_clients),
+            "loads": dict(
+                ("bot" + str(c + 1), l)
+                for c, (_, l) in enumerate(
+                    sorted(work_loads.items(), key=lambda x: x[1], reverse=True)
+                )
+            ),
+            "version": __version__,
+        }
+    )
 
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def watch_handler(request: web.Request):
-    """Renders the HTML streaming watch page."""
     try:
         path = request.match_info["path"]
-        secure_hash, file_id = parse_file_path(path, request.rel_url.query.get("hash"))
-        return web.Response(text=await render_page(file_id, secure_hash), content_type='text/html')
+        match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", path)
+        if match:
+            secure_hash = match.group(1)
+            id = int(match.group(2))
+        else:
+            id = int(re.search(r"(\d+)(?:\/\S+)?", path).group(1))
+            secure_hash = request.rel_url.query.get("hash")
+        return web.Response(text=await render_page(id, secure_hash), content_type='text/html')
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
@@ -104,21 +90,19 @@ async def watch_handler(request: web.Request):
     except Exception as e:
         logging.critical(e.with_traceback(None))
         raise web.HTTPInternalServerError(text=str(e))
-
-
-@routes.get("/favicon.ico")
-async def favicon(_):
-    """Ignore favicon requests to prevent unnecessary bot errors."""
-    raise web.HTTPNotFound()
-
 
 @routes.get(r"/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
-    """Main media stream router."""
     try:
         path = request.match_info["path"]
-        secure_hash, file_id = parse_file_path(path, request.rel_url.query.get("hash"))
-        return await media_streamer(request, file_id, secure_hash)
+        match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", path)
+        if match:
+            secure_hash = match.group(1)
+            id = int(match.group(2))
+        else:
+            id = int(re.search(r"(\d+)(?:\/\S+)?", path).group(1))
+            secure_hash = request.rel_url.query.get("hash")
+        return await media_streamer(request, id, secure_hash)
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
@@ -129,9 +113,7 @@ async def stream_handler(request: web.Request):
         logging.critical(e.with_traceback(None))
         raise web.HTTPInternalServerError(text=str(e))
 
-
 async def media_streamer(request: web.Request, id: int, secure_hash: str):
-    """Handles partial content video/file byte streaming."""
     range_header = request.headers.get("Range", 0)
     
     index = min(work_loads, key=work_loads.get)
@@ -195,7 +177,7 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
                 file_name = f"{secrets.token_hex(2)}.unknown"
     else:
         if file_name:
-            mime_type = mimetypes.guess_type(file_id.file_name)[0] or "application/octet-stream"
+            mime_type = mimetypes.guess_type(file_id.file_name)
         else:
             mime_type = "application/octet-stream"
             file_name = f"{secrets.token_hex(2)}.unknown"
@@ -212,21 +194,25 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
         },
     )
 
-
 @routes.get("/api/tracks/{file_id}", allow_head=True)
 async def get_audio_tracks(request: web.Request):
-    """Analyzes media file tracks using ffprobe."""
-    raw_file_id = request.match_info["file_id"]
+    file_id = request.match_info["file_id"]
     
     try:
-        secure_hash, id = parse_file_path(raw_file_id, request.rel_url.query.get("hash"))
+        match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", file_id)
+        if match:
+            secure_hash = match.group(1)
+            id = int(match.group(2))
+        else:
+            id = int(re.search(r"(\d+)", file_id).group(1))
+            secure_hash = request.rel_url.query.get("hash")
         
         index = min(work_loads, key=work_loads.get)
         faster_client = multi_clients[index]
         tg_connect = ByteStreamer(faster_client)
         file_props = await tg_connect.get_file_properties(id)
         
-        cache_key = f"tracks_{raw_file_id}"
+        cache_key = f"tracks_{file_id}"
         if cache_key in AUDIO_CACHE:
             return web.json_response(AUDIO_CACHE[cache_key])
         
@@ -234,9 +220,13 @@ async def get_audio_tracks(request: web.Request):
         sample_size = min(5 * 1024 * 1024, file_size)
         
         chunk_size = 1024 * 1024
+        offset = 0
+        first_part_cut = 0
+        last_part_cut = sample_size
+        
         sample_data = b''
         async for chunk in tg_connect.yield_file(
-            file_props, index, 0, 0, sample_size, 
+            file_props, index, offset, first_part_cut, last_part_cut, 
             math.ceil(sample_size / chunk_size), chunk_size
         ):
             sample_data += chunk
@@ -265,6 +255,7 @@ async def get_audio_tracks(request: web.Request):
                     tags = stream.get('tags', {})
                     language = tags.get('language', 'und')
                     title = tags.get('title', f'Track {i+1}')
+                    
                     display_lang = LANG_MAP.get(language.lower(), language)
                     
                     tracks.append({
@@ -286,32 +277,34 @@ async def get_audio_tracks(request: web.Request):
                 
         except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
             logging.error(f"FFprobe error: {e}")
-            if os.path.exists(tmp_path):
-                os.unlink(tmp_path)
+            os.unlink(tmp_path)
             return web.json_response([])
             
     except Exception as e:
         logging.error(f"Audio tracks error: {e}")
         return web.json_response([])
 
-
 @routes.get("/audio/{stream_index}/{file_id}", allow_head=True)
 async def audio_stream_handler(request: web.Request):
-    """Extracts and streams individual audio tracks via ffmpeg."""
     stream_index = int(request.match_info["stream_index"])
-    raw_file_id = request.match_info["file_id"]
+    file_id = request.match_info["file_id"]
     
     try:
-        secure_hash, id = parse_file_path(raw_file_id, request.rel_url.query.get("hash"))
+        match = re.search(r"^([a-zA-Z0-9_-]{6})(\d+)$", file_id)
+        if match:
+            secure_hash = match.group(1)
+            id = int(match.group(2))
+        else:
+            id = int(re.search(r"(\d+)", file_id).group(1))
+            secure_hash = request.rel_url.query.get("hash")
         
         index = min(work_loads, key=work_loads.get)
         faster_client = multi_clients[index]
         tg_connect = ByteStreamer(faster_client)
         file_props = await tg_connect.get_file_properties(id)
         
-        cache_key = f"audio_{stream_index}_{raw_file_id}"
+        cache_key = f"audio_{stream_index}_{file_id}"
         cache_file = os.path.join(AUDIO_CACHE_DIR, f"{cache_key}.mp3")
-        temp_path = None
         
         if not os.path.exists(cache_file):
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
@@ -342,7 +335,8 @@ async def audio_stream_handler(request: web.Request):
                     '-map', f'0:a:{stream_index}',
                     '-c:a', 'libmp3lame',
                     '-b:a', '128k',
-                    '-vn', '-y', cache_file
+                    '-vn',
+                    '-y', cache_file
                 ]
                 
                 result = subprocess.run(extract_cmd, capture_output=True, timeout=300)
@@ -351,15 +345,18 @@ async def audio_stream_handler(request: web.Request):
                     logging.error(f"FFmpeg error: {result.stderr.decode()}")
                     return web.Response(status=500, text="Audio extraction failed")
                 
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+                
             except Exception as e:
                 logging.error(f"Audio extraction error: {e}")
-                return web.Response(status=500, text=str(e))
-            finally:
-                if temp_path and os.path.exists(temp_path):
+                if os.path.exists(temp_path):
                     os.unlink(temp_path)
+                return web.Response(status=500, text=str(e))
         
         if os.path.exists(cache_file):
             audio_size = os.path.getsize(cache_file)
+            
             range_header = request.headers.get("Range", 0)
             
             if range_header:
@@ -403,15 +400,13 @@ async def audio_stream_handler(request: web.Request):
         logging.error(f"Audio stream error: {e}")
         return web.Response(status=500, text=str(e))
 
-
 @routes.get("/votes/{file_name}", allow_head=True)
-async def get_votes(request: web.Request):
-    """Retrieves like/dislike counts for a file."""
+async def get_votes(request):
     file_name = request.match_info["file_name"]
     try:
         with open(VOTES_FILE, 'r') as f:
             data = json.load(f)
-    except Exception:
+    except:
         data = {}
     
     if file_name not in data:
@@ -429,10 +424,8 @@ async def get_votes(request: web.Request):
         'user_vote': None
     })
 
-
 @routes.post("/vote")
-async def vote(request: web.Request):
-    """Handles updating like/dislike votes per user IP."""
+async def vote(request):
     data = await request.json()
     file_name = data['file_name']
     vote_type = data['vote']
@@ -441,7 +434,7 @@ async def vote(request: web.Request):
     try:
         with open(VOTES_FILE, 'r') as f:
             votes = json.load(f)
-    except Exception:
+    except:
         votes = {}
     
     if file_name not in votes:
@@ -486,15 +479,13 @@ async def vote(request: web.Request):
         'user_vote': user_vote
     })
 
-
 @routes.post("/report")
-async def report(request: web.Request):
-    """Logs media report submissions to storage."""
+async def report(request):
     data = await request.json()
     try:
         with open(REPORTS_FILE, 'r') as f:
             reports = json.load(f)
-    except Exception:
+    except:
         reports = []
     
     reports.append({
