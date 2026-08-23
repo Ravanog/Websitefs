@@ -1,3 +1,8 @@
+# Don't Remove Credit @VJ_Bots
+# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
+# Ask Doubt on telegram @KingVJ01
+
+
 import math
 import asyncio
 import logging
@@ -7,7 +12,7 @@ from TechVJ.bot import work_loads
 from pyrogram import Client, utils, raw
 from .file_properties import get_file_ids
 from pyrogram.session import Session, Auth
-from pyrogram.errors import AuthBytesInvalid, Timeout as PyroTimeout
+from pyrogram.errors import AuthBytesInvalid
 from TechVJ.server.exceptions import FIleNotFound
 from pyrogram.file_id import FileId, FileType, ThumbnailSource
 
@@ -171,7 +176,7 @@ class ByteStreamer:
         chunk_size: int,
     ) -> Union[str, None]:
         """
-        Custom generator that yields the bytes of the media file with retry protection.
+        Custom generator that yields the bytes of the media file.
         Modded from <https://github.com/eyaadh/megadlbot_oss/blob/master/mega/telegram/utils/custom_download.py#L20>
         Thanks to Eyaadh <https://github.com/eyaadh>
         """
@@ -183,24 +188,12 @@ class ByteStreamer:
         current_part = 1
         location = await self.get_location(file_id)
 
-        max_retries = 3
-
         try:
-            r = None
-            for attempt in range(max_retries):
-                try:
-                    r = await media_session.send(
-                        raw.functions.upload.GetFile(
-                            location=location, offset=offset, limit=chunk_size
-                        ),
-                    )
-                    break
-                except (TimeoutError, PyroTimeout) as e:
-                    if attempt == max_retries - 1:
-                        raise e
-                    logging.warning(f"Telegram timeout on initial chunk fetch. Retrying ({attempt + 1}/{max_retries})...")
-                    await asyncio.sleep(1.5 * (attempt + 1))
-
+            r = await media_session.send(
+                raw.functions.upload.GetFile(
+                    location=location, offset=offset, limit=chunk_size
+                ),
+            )
             if isinstance(r, raw.types.upload.File):
                 while True:
                     chunk = r.bytes
@@ -221,27 +214,15 @@ class ByteStreamer:
                     if current_part > part_count:
                         break
 
-                    r = None
-                    for attempt in range(max_retries):
-                        try:
-                            r = await media_session.send(
-                                raw.functions.upload.GetFile(
-                                    location=location, offset=offset, limit=chunk_size
-                                ),
-                            )
-                            break
-                        except (TimeoutError, PyroTimeout) as e:
-                            if attempt == max_retries - 1:
-                                raise e
-                            logging.warning(f"Telegram timeout on part {current_part}. Retrying ({attempt + 1}/{max_retries})...")
-                            await asyncio.sleep(1 * (attempt + 1))
-                            
-                    if not isinstance(r, raw.types.upload.File):
-                        break
-        except (TimeoutError, PyroTimeout, AttributeError) as err:
-            logging.error(f"Stream dropped due to timeout/error: {err}")
+                    r = await media_session.send(
+                        raw.functions.upload.GetFile(
+                            location=location, offset=offset, limit=chunk_size
+                        ),
+                    )
+        except (TimeoutError, AttributeError):
+            pass
         finally:
-            logging.debug(f"Finished yielding file with {current_part} parts.")
+            logging.debug("Finished yielding file with {current_part} parts.")
             work_loads[index] -= 1
 
     
