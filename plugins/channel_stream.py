@@ -6,7 +6,7 @@ from pyrogram.errors import FloodWait
 from TechVJ.utils.file_properties import get_hash, get_name
 from config import STREAM_MODE, URL, LOG_CHANNEL
 
-ALLOWED_CHANNELS = [-1002082701021 -1002578416876]  # Add your channel IDs here
+ALLOWED_CHANNELS = [-1002578416876]  # Add your channel IDs here
 
 @Client.on_message(filters.channel & (filters.document | filters.video) & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot: Client, broadcast: Message):
