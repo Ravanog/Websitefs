@@ -1,4 +1,5 @@
 from urllib.parse import quote_plus
+import urllib.parse
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
@@ -9,8 +10,8 @@ from config import STREAM_MODE, URL, LOG_CHANNEL
 # Put your private channel ID here (Private channel IDs always start with -100)
 ALLOWED_CHANNELS = [-1002578416876]  
 
-# Your Vercel frontend URL
-VERCEL_URL = "https://harimoviezstreampage.vercel.app/?token="
+# Your Vercel frontend base URL expecting the 'url' parameter
+VERCEL_BASE_URL = "https://harimoviezstreampage.vercel.app/?url="
 
 @Client.on_message(filters.chat(ALLOWED_CHANNELS) & (filters.document | filters.video) & ~filters.forwarded, group=-1)
 async def private_channel_receive_handler(bot: Client, broadcast: Message):
@@ -28,9 +29,9 @@ async def private_channel_receive_handler(bot: Client, broadcast: Message):
         stream = f"{URL}watch/{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         download = f"{URL}{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         
-        # Create unique token for your Vercel page
-        file_token = f"{msg.id}_{get_hash(msg)}"
-        ver_link = f"{VERCEL_URL}{quote_plus(file_token)}"
+        # Safely encode the full Koyeb stream URL to pass it into Vercel
+        encoded_target = urllib.parse.quote(stream, safe='')
+        ver_link = f"{VERCEL_BASE_URL}{encoded_target}"
         
         # Admin log message buttons
         log_buttons = InlineKeyboardMarkup([
@@ -45,7 +46,7 @@ async def private_channel_receive_handler(bot: Client, broadcast: Message):
             reply_markup=log_buttons
         )
         
-        # Buttons attached to the message inside your private channel
+        # Buttons attached to the message inside your private channel pointing to Vercel
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=ver_link),
              InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=ver_link)]
