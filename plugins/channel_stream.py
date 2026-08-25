@@ -4,12 +4,9 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait
 from TechVJ.utils.file_properties import get_hash, get_name
-from config import STREAM_MODE, URL, LOG_CHANNEL
+from config import STREAM_MODE, URL, LOG_CHANNEL, VERCEL_URL
 
 ALLOWED_CHANNELS = [-1002578416876]  # Add your channel IDs here
-
-# 1. Define your Vercel frontend URL at the top of your file (replace with your actual Vercel link)
-VERCEL_URL = "https://streampage-liard.vercel.app"
 
 # Inside your channel_receive_handler function:
 @Client.on_message(filters.channel & (filters.document | filters.video) & ~filters.forwarded, group=-1)
