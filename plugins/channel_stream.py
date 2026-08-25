@@ -4,11 +4,10 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait
 from TechVJ.utils.file_properties import get_hash, get_name
-from config import STREAM_MODE, URL, LOG_CHANNEL, VERCEL_URL
+from config import STREAM_MODE, URL, LOG_CHANNEL
 
 ALLOWED_CHANNELS = [-1002578416876]  # Add your channel IDs here
 
-# Inside your channel_receive_handler function:
 @Client.on_message(filters.channel & (filters.document | filters.video) & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot: Client, broadcast: Message):
     if STREAM_MODE == False:
@@ -23,15 +22,10 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
         
         msg = await broadcast.forward(chat_id=LOG_CHANNEL)
         
-        # Keep direct links ONLY for the log channel if you want admin backups
         stream = f"{URL}watch/{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         download = f"{URL}{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         
-        # Create a unique token combining the message ID and hash for Vercel
-        file_token = f"{msg.id}_{get_hash(msg)}"
-        ver_link = f"{VERCEL_URL}{quote_plus(file_token)}"
-        
-        # Admin log message buttons (keeps direct Koyeb links)
+        # Log message with remove button
         log_buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=stream),
              InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=download)],
@@ -44,10 +38,10 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
             reply_markup=log_buttons
         )
         
-        # IMPORTANT: Public channel buttons MUST use 'ver_link' (Vercel) instead of 'stream'/'download'
+        # Original message buttons
         buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=ver_link),
-             InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=ver_link)]
+            [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=stream),
+             InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=download)]
         ])
         
         await bot.edit_message_reply_markup(
@@ -61,4 +55,3 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
         await channel_receive_handler(bot, broadcast)
     except Exception as e:
         print(f"Error: {e}")
-        
