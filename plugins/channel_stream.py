@@ -6,11 +6,12 @@ from pyrogram.errors import FloodWait
 from TechVJ.utils.file_properties import get_hash, get_name
 from config import STREAM_MODE, URL, LOG_CHANNEL
 
-# Add your Vercel deployment URL here (Make sure to include the trailing slash if needed)
-VERCEL_URL = "https://streampage-liard.vercel.app/?token"  # e.g., https://hari-moviez.vercel.app/?token=
-
 ALLOWED_CHANNELS = [-1002578416876]  # Add your channel IDs here
 
+# 1. Define your Vercel frontend URL at the top of your file (replace with your actual Vercel link)
+VERCEL_URL = "https://streampage-liard.vercel.app"
+
+# Inside your channel_receive_handler function:
 @Client.on_message(filters.channel & (filters.document | filters.video) & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot: Client, broadcast: Message):
     if STREAM_MODE == False:
@@ -25,18 +26,15 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
         
         msg = await broadcast.forward(chat_id=LOG_CHANNEL)
         
-        # 1. Generate the unique file token or identifier that your Vercel page reads
-        # Using the msg.id or file hash as the token parameter
-        file_token = f"{msg.id}_{get_hash(msg)}"
-        
-        # 2. Point the buttons to your Vercel link instead of direct stream/download
-        ver_link = f"{VERCEL_URL}{quote_plus(file_token)}"
-        
-        # Keep original direct URLs for logging if needed
+        # Keep direct links ONLY for the log channel if you want admin backups
         stream = f"{URL}watch/{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         download = f"{URL}{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         
-        # Log message with remove button (keeps direct links for admin logs)
+        # Create a unique token combining the message ID and hash for Vercel
+        file_token = f"{msg.id}_{get_hash(msg)}"
+        ver_link = f"{VERCEL_URL}{quote_plus(file_token)}"
+        
+        # Admin log message buttons (keeps direct Koyeb links)
         log_buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=stream),
              InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=download)],
@@ -49,7 +47,7 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
             reply_markup=log_buttons
         )
         
-        # 3. Channel message buttons now route through your Vercel page
+        # IMPORTANT: Public channel buttons MUST use 'ver_link' (Vercel) instead of 'stream'/'download'
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=ver_link),
              InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=ver_link)]
@@ -66,3 +64,4 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
         await channel_receive_handler(bot, broadcast)
     except Exception as e:
         print(f"Error: {e}")
+        
