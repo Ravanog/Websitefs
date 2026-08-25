@@ -172,6 +172,27 @@
       align-items: center;
       justify-content: space-between;
     }
+    
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 0 24px rgba(157,111,255,.5), 0 0 6px rgba(0,245,212,.3);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    .brand-name {
+      font-family: var(--font-head);
+      font-weight: 800; font-size: 1.25rem;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+      letter-spacing: .5px;
+    }
 
     .logo-container {
       position: relative;
@@ -1420,13 +1441,13 @@
 
 <body>
 
-  <nav class="topbar">
-    <div class="logo-container">
-      <div class="logo-circle"></div>
-      <div class="logo-text">Hari Moviez</div>
-    </div>
-    <span class="live-badge"><span class="live-dot"></span>LIVE</span>
-  </nav>
+<nav class="topbar">
+  <a href="#" class="brand">
+    <div class="brand-icon"><i class="fa-solid fa-robot" style="color:#fff"></i></div>
+    <span class="brand-name">ʜᴀʀɪ ᴍᴏᴠɪᴇᴢ</span>
+  </a>
+  <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+</nav>
 
   <main>
 <!-- Audio Loading Overlay -->
