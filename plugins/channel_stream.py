@@ -6,6 +6,9 @@ from pyrogram.errors import FloodWait
 from TechVJ.utils.file_properties import get_hash, get_name
 from config import STREAM_MODE, URL, LOG_CHANNEL
 
+# Add your Vercel deployment URL here (Make sure to include the trailing slash if needed)
+VERCEL_URL = "https://streampage-liard.vercel.app/?token"  # e.g., https://hari-moviez.vercel.app/?token=
+
 ALLOWED_CHANNELS = [-1002578416876]  # Add your channel IDs here
 
 @Client.on_message(filters.channel & (filters.document | filters.video) & ~filters.forwarded, group=-1)
@@ -22,10 +25,18 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
         
         msg = await broadcast.forward(chat_id=LOG_CHANNEL)
         
+        # 1. Generate the unique file token or identifier that your Vercel page reads
+        # Using the msg.id or file hash as the token parameter
+        file_token = f"{msg.id}_{get_hash(msg)}"
+        
+        # 2. Point the buttons to your Vercel link instead of direct stream/download
+        ver_link = f"{VERCEL_URL}{quote_plus(file_token)}"
+        
+        # Keep original direct URLs for logging if needed
         stream = f"{URL}watch/{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         download = f"{URL}{msg.id}/{quote_plus(get_name(msg))}?hash={get_hash(msg)}"
         
-        # Log message with remove button
+        # Log message with remove button (keeps direct links for admin logs)
         log_buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=stream),
              InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=download)],
@@ -38,10 +49,10 @@ async def channel_receive_handler(bot: Client, broadcast: Message):
             reply_markup=log_buttons
         )
         
-        # Original message buttons
+        # 3. Channel message buttons now route through your Vercel page
         buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=stream),
-             InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=download)]
+            [InlineKeyboardButton("🖥 Wᴀᴛᴄʜ Nᴏᴡ!", url=ver_link),
+             InlineKeyboardButton("📥 Dᴏᴡɴʟᴏᴀᴅ", url=ver_link)]
         ])
         
         await bot.edit_message_reply_markup(
