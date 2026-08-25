@@ -10,7 +10,7 @@ from config import STREAM_MODE, URL, LOG_CHANNEL
 ALLOWED_CHANNELS = [-1002578416876]  
 
 # Your Vercel frontend URL
-VERCEL_URL = "https://streampage-liard.vercel.app/?token="
+VERCEL_URL = "https://harimoviezstreampage.vercel.app/?token="
 
 @Client.on_message(filters.chat(ALLOWED_CHANNELS) & (filters.document | filters.video) & ~filters.forwarded, group=-1)
 async def private_channel_receive_handler(bot: Client, broadcast: Message):
